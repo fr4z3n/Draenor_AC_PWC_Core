@@ -3491,7 +3491,15 @@ void SpellMgr::LoadDbcDataCorrections()
         case 24314: // Threatening Gaze
             spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_CAST | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_JUMP;
             break;
-
+        case 33948:
+            spellInfo->EffectBasePoints[0] = 300;
+            break;
+        case 40121:
+            spellInfo->EffectBasePoints[0] = 560;
+            break;
+        case 55173:
+            spellInfo->EffectBasePoints[1] = 560;
+            break;
 
         /////////////////////////////////////////////
         /////////////////CLASS SPELLS////////////////

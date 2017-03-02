@@ -5603,7 +5603,7 @@ void Player::RepopAtGraveyard()
 }
 
 bool Player::CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, AreaTableEntry const* zone)
-{ 
+{
     if (channel->flags & CHANNEL_DBC_FLAG_ZONE_DEP && zone->flags & AREA_FLAG_ARENA_INSTANCE)
         return false;
 
@@ -7584,6 +7584,8 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     // zone changed, so area changed as well, update it
     UpdateArea(newArea);
 
+    UpdateSpeed(MOVE_RUN, true);
+
     AreaTableEntry const* zone = GetAreaEntryByAreaID(newZone);
     if (!zone)
         return;
@@ -7791,6 +7793,9 @@ void Player::DuelComplete(DuelCompleteType type)
     SetUInt32Value(PLAYER_DUEL_TEAM, 0);
     duel->opponent->SetUInt64Value(PLAYER_DUEL_ARBITER, 0);
     duel->opponent->SetUInt32Value(PLAYER_DUEL_TEAM, 0);
+
+    UpdateSpeed(MOVE_RUN, true);
+    duel->opponent->UpdateSpeed(MOVE_RUN, true);
 
     delete duel->opponent->duel;
     duel->opponent->duel = NULL;

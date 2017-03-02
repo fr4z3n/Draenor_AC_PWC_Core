@@ -132,6 +132,13 @@ struct GameTele
 
 typedef UNORDERED_MAP<uint32, GameTele > GameTeleContainer;
 
+struct sDMSRestrictions {
+    uint8 type;
+    uint32 parameter; 
+};
+
+typedef std::list<sDMSRestrictions> DMSRestrictions;
+
 enum ScriptsType
 {
     SCRIPTS_FIRST = 1,
@@ -1281,6 +1288,9 @@ class ObjectMgr
         void LoadFactionChangeReputations();
         void LoadFactionChangeSpells();
         void LoadFactionChangeTitles();
+        void LoadDMSRestrictions();
+
+        DMSRestrictions GetDMSRestrictions() { return _dmsRestrictionStore; }
 
     private:
         // first free id for selected id type
@@ -1336,6 +1346,8 @@ class ObjectMgr
         ReservedNamesContainer _reservedNamesStore;
 
         GameTeleContainer _gameTeleStore;
+
+        DMSRestrictions _dmsRestrictionStore;
 
         ScriptNameContainer _scriptNamesStore;
 

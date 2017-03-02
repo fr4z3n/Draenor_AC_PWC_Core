@@ -9266,6 +9266,24 @@ PlayerInfo const* ObjectMgr::GetPlayerInfo(uint32 race, uint32 class_) const
     return info;
 }
 
+void ObjectMgr::LoadDMSRestrictions() {
+    QueryResult result = WorldDatabase.PQuery("SELECT type, parameter FROM dms_restriction");
+
+        if (!result)
+            return;
+
+        if (!_dmsRestrictionStore.empty())
+         _dmsRestrictionStore.clear();
+
+        do {
+        Field* field = result->Fetch();
+        sDMSRestrictions dmsr;
+        dmsr.type = field[0].GetUInt8();
+        dmsr.parameter = field[1].GetUInt32();
+        _dmsRestrictionStore.push_back(dmsr);
+    } while (result->NextRow());
+}
+
 void ObjectMgr::LoadGameObjectQuestItems()
 {
     uint32 oldMSTime = getMSTime();

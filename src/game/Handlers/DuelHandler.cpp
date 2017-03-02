@@ -37,6 +37,9 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
     player->duel->startTimer = now;
     plTarget->duel->startTimer = now;
 
+    player->UpdateSpeed(MOVE_RUN, true);
+    plTarget->UpdateSpeed(MOVE_RUN, true);
+
     player->SendDuelCountdown(3000);
     plTarget->SendDuelCountdown(3000);
 }

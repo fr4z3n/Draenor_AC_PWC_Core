@@ -12921,6 +12921,8 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
     float stack_bonus     = 1.0f;
     float non_stack_bonus = 1.0f;
 
+    uint8 movement_inc = IsDMSRestricted() ? 1.0f : 2.0f;
+
     switch (mtype)
     {
         // Only apply debuffs
@@ -12935,13 +12937,13 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
             if (IsMounted()) // Use on mount auras
             {
                 main_speed_mod  = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED);
-                stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_MOUNTED_SPEED_ALWAYS);
+                stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_MOUNTED_SPEED_ALWAYS)*movement_inc;
                 non_stack_bonus += GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MOUNTED_SPEED_NOT_STACK) / 100.0f;
             }
             else
             {
                 main_speed_mod  = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_SPEED);
-                stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_SPEED_ALWAYS);
+                stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_SPEED_ALWAYS)*movement_inc;
                 non_stack_bonus += GetMaxPositiveAuraModifier(SPELL_AURA_MOD_SPEED_NOT_STACK) / 100.0f;
             }
             break;
@@ -12955,11 +12957,11 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
                 // xinef: sea turtle only, it is not affected by any increasing / decreasing effects
                 if ((*itr)->GetId() == 64731 /*SPELL_SEA_TURTLE*/)
                 {
-                    SetSpeed(mtype, AddPct(non_stack_bonus, (*itr)->GetAmount()), forced);
+                    SetSpeed(mtype, AddPct(non_stack_bonus, (*itr)->GetAmount()*movement_inc), forced);
                     return;
                 }
                 else if ((*itr)->GetAmount() > main_speed_mod)
-                    main_speed_mod = (*itr)->GetAmount();
+                    main_speed_mod = (*itr)->GetAmount()*movement_inc;
             }
             break;
         }
@@ -12968,7 +12970,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
             if (GetTypeId() == TYPEID_UNIT && IsControlledByPlayer()) // not sure if good for pet
             {
                 main_speed_mod  = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED);
-                stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_VEHICLE_SPEED_ALWAYS);
+                stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_VEHICLE_SPEED_ALWAYS)*movement_inc;
 
                 // for some spells this mod is applied on vehicle owner
                 int32 owner_speed_mod = 0;
@@ -12981,7 +12983,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
             else if (IsMounted())
             {
                 main_speed_mod  = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
-                stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_MOUNTED_FLIGHT_SPEED_ALWAYS);
+                stack_bonus     = GetTotalAuraMultiplier(SPELL_AURA_MOD_MOUNTED_FLIGHT_SPEED_ALWAYS)*movement_inc;
             }
             else             // Use not mount (shapeshift for example) auras (should stack)
                 main_speed_mod  = GetTotalAuraModifier(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED) + GetTotalAuraModifier(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED);
@@ -19308,4 +19310,106 @@ void Unit::setRace(uint8 race)
 {
     if (GetTypeId() == TYPEID_PLAYER)
         m_race = race;
+}
+
+
+bool Unit::IsDMSRestricted()
+{
+    if (sWorld->getIntConfig(CONFIG_DOUBLE_MOVING) != 1)
+        return true;
+
+    DMSRestrictions dmsr = sObjectMgr->GetDMSRestrictions();
+    if (dmsr.empty())
+        return false;
+
+    DMSRestrictions::const_iterator itr;
+    for (itr = dmsr.begin(); itr != dmsr.end(); ++itr)
+    {
+        switch ((*itr).type)
+        {
+        case DMSR_TYPE_MAP:
+        {
+            if (GetMap()->GetId() == (*itr).parameter)
+                return true;
+            break;
+        }
+
+        case DMSR_TYPE_ZONE:
+        {
+            if (GetZoneId() == (*itr).parameter)
+                return true;
+            break;
+        }
+
+        case DMSR_TYPE_AREA:
+        {
+            if (GetAreaId() == (*itr).parameter)
+                return true;
+            break;
+        }
+
+        case DMSR_TYPE_AREAFLAG:
+        {
+            AreaTableEntry const* zone = GetAreaEntryByAreaID(GetZoneId());
+            if (zone && (zone->flags & (*itr).parameter))
+                return true;
+            break;
+        }
+
+        case DMSR_TYPE_SPECIAL:
+        {
+            switch ((*itr).parameter)
+            {
+            case DMSR_SPECIAL_DUEL:
+            {
+                if (GetTypeId() == TYPEID_PLAYER && GetUInt64Value(PLAYER_DUEL_ARBITER))
+                    return true;
+                break;
+            }
+
+            case DMSR_SPECIAL_BGS:
+            {
+                if (Map* map = GetMap())
+                    if (map->IsBattleground())
+                        return true;
+                break;
+            }
+
+            case DMSR_SPECIAL_ARENA:
+            {
+                if (Map* map = GetMap())
+                    if (map->IsBattlegroundOrArena())
+                        return true;
+                break;
+            }
+
+            case DMSR_SPECIAL_DUNGEON:
+            {
+                if (Map* map = GetMap())
+                    if (map->IsDungeon())
+                        return true;
+                break;
+            }
+
+            case DMSR_SPECIAL_RAID:
+            {
+                if (Map* map = GetMap())
+                    if (map->IsRaid())
+                        return true;
+                break;
+            }
+
+            case DMSR_SPECIAL_INSTANCEABLE:
+            {
+                if (Map* map = GetMap())
+                    if (map->Instanceable())
+                        return true;
+            }
+            }
+            break;
+        }
+        }
+    }
+
+    return false;
 }

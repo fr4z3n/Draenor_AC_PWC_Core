@@ -78,6 +78,7 @@ public:
             { "disables",                     SEC_ADMINISTRATOR, true,  &HandleReloadDisablesCommand,                   "" },
             { "disenchant_loot_template",     SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesDisenchantCommand,    "" },
             { "event_scripts",                SEC_ADMINISTRATOR, true,  &HandleReloadEventScriptsCommand,               "" },
+            { "dms_restrictions",             SEC_ADMINISTRATOR, true,  &HandleReloadDMSRestrictionsCommand,            "",},
             { "fishing_loot_template",        SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesFishingCommand,       "" },
             { "game_graveyard_zone",          SEC_ADMINISTRATOR, true,  &HandleReloadGameGraveyardZoneCommand,          "" },
             { "game_tele",                    SEC_ADMINISTRATOR, true,  &HandleReloadGameTeleCommand,                   "" },
@@ -1193,6 +1194,14 @@ public:
         handler->SendGlobalGMSysMessage("Vehicle template accessories reloaded.");
         return true;
     }
+
+    static bool HandleReloadDMSRestrictionsCommand(ChatHandler* handler, const char* /*args*/)
+        {
+        sLog->outString("Reloading dms_restrictions table...");
+        sObjectMgr->LoadDMSRestrictions();
+        handler->SendGlobalGMSysMessage("DMSRestrictions reloaded");
+        return true;
+        }
 };
 
 void AddSC_reload_commandscript()

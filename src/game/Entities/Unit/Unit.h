@@ -292,6 +292,24 @@ enum InventorySlot
     NULL_SLOT                  = 255
 };
 
+enum eDMSRestrictions {
+    DMSR_TYPE_NONE = 0,
+    DMSR_TYPE_MAP = 1,
+    DMSR_TYPE_ZONE = 2,
+    DMSR_TYPE_AREA = 3,
+    DMSR_TYPE_AREAFLAG = 4,
+    DMSR_TYPE_SPECIAL = 5
+};
+
+enum eDMSRSpecial {
+    DMSR_SPECIAL_DUEL = 1,
+    DMSR_SPECIAL_BGS = 2,
+    DMSR_SPECIAL_ARENA = 3,
+    DMSR_SPECIAL_DUNGEON = 4,
+    DMSR_SPECIAL_RAID = 5,
+    DMSR_SPECIAL_INSTANCEABLE = 6
+};
+
 struct FactionTemplateEntry;
 struct SpellValue;
 
@@ -2422,6 +2440,8 @@ class Unit : public WorldObject
 
         // Movement info
         Movement::MoveSpline * movespline;
+
+        bool IsDMSRestricted();
 
     protected:
         explicit Unit (bool isWorldObject);
