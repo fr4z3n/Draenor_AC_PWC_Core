@@ -223,7 +223,7 @@ public:
 
     void OnLogin(Player* player)
     {
-        if (player->GetTeamId() == ALLIANCE)
+        if (player->GetTeamId() == TEAM_ALLIANCE)
         {
             std::ostringstream ss;
             ss << "|cff3DAEFF[ PWC Login ]|cffFFD800 : Der Spieler |cff4CFF00 " << player->GetName() << " |cffFFD800ist online. Er spielt auf der Seite der |cff0026FF Allianz";
