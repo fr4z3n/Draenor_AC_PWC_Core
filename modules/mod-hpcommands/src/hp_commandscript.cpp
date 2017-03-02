@@ -148,37 +148,37 @@ class cms_commandscript : public CommandScript
 
         static bool HandleProfessionSet(ChatHandler* handler, char const* args)
         {
-		    if (!*args)
-			    return false;
+            if (!*args)
+                return false;
 
-    		uint32 skill = 0;
+            uint32 skill = 0;
 
-    		char* playerName = strtok((char*)args, " ");
-    		char* skillEntry = strtok((char*)NULL, " ");
+            char* playerName = strtok((char*)args, " ");
+            char* skillEntry = strtok((char*)NULL, " ");
 
-    		if (!playerName || !skillEntry)
-    			return false;
+            if (!playerName || !skillEntry)
+                return false;
 
-    		skill = uint32(atol(skillEntry));
+            skill = uint32(atol(skillEntry));
             //int32 skill = atoi(skillStr);
 
-    		Player* target;
-	    	ObjectGuid targetGuid;
-    		if (!handler->extractPlayerTarget(playerName, &target, &targetGuid))
-	    		return false;
-		
+            Player* target;
+            ObjectGuid targetGuid;
+            if (!handler->extractPlayerTarget(playerName, &target, &targetGuid))
+                return false;
+        
             if (!target)
             {
-	    		handler->PSendSysMessage("No character selected");
+                handler->PSendSysMessage("No character selected");
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-		
+        
             char const* maxPureSkill = "450";
 
             if (skill <= 0)
             {
-	    		handler->PSendSysMessage("Falscher Skill!");
+                handler->PSendSysMessage("Falscher Skill!");
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -188,7 +188,7 @@ class cms_commandscript : public CommandScript
             SkillLineEntry const* skillLine = sSkillLineStore.LookupEntry(skill);
             if (!skillLine)
             {
-	    		handler->PSendSysMessage("Falscher Skill!");
+                handler->PSendSysMessage("Falscher Skill!");
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -198,7 +198,7 @@ class cms_commandscript : public CommandScript
 
             if (!targetHasSkill)
             {
-	    		handler->PSendSysMessage("No skills found");
+                handler->PSendSysMessage("No skills found");
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -217,7 +217,30 @@ class cms_commandscript : public CommandScript
         }
 };
 
+class announce_login : public PlayerScript
+{
+public:
+    announce_login() : PlayerScript("announce_login") { }
+
+    void OnLogin(Player* player, bool /*loginFirst*/)
+    {
+        if (player->GetTeam() == ALLIANCE)
+        {
+            std::ostringstream ss;
+            ss << "|cff3DAEFF[ PWC Login ]|cffFFD800 : Der Spieler |cff4CFF00 " << player->GetName() << " |cffFFD800ist online. Er spielt auf der Seite der |cff0026FF Allianz";
+            sWorld->SendServerMessage(SERVER_MSG_STRING, ss.str().c_str());
+        }
+        else
+        {
+            std::ostringstream ss;
+            ss << "|cff3DAEFF[ PWC Login ]|cffFFD800 : Der Spieler |cff4CFF00 " << player->GetName() << " |cffFFD800ist online. Er spielt auf der Seite der|cffFF0000 Horde" ;
+            sWorld->SendServerMessage(SERVER_MSG_STRING, ss.str().c_str());
+        }
+    }
+};
+
 void AddSC_cms_commandscript()
 {
     new cms_commandscript();
+    new announce_login();
 }
