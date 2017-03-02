@@ -13,14 +13,13 @@ class cms_commandscript : public CommandScript
     public:
         cms_commandscript() : CommandScript("cms_commandscript") { }
 
-        ChatCommand* GetCommands() const
+        std::vector<ChatCommand> GetCommands() const override
         {
-            static ChatCommand PwcCommandTable[] =
+            static std::vector<ChatCommand> PwcCommandTable =
             {
-                { "pteleport",       SEC_CONSOLE,       true,   &HandlePTeleportCommand,     "", NULL },
-                { "refunditem",      SEC_CONSOLE,       true,   &HandleItemDestroy,          "", NULL },
-                { "professionset",   SEC_CONSOLE,       true,   &HandleProfessionSet,          "", NULL },
-                { NULL,              0,                 false,  NULL,                        "", NULL }
+                { "pteleport",       SEC_CONSOLE,       true,   &HandlePTeleportCommand,     "" },
+                { "refunditem",      SEC_CONSOLE,       true,   &HandleItemDestroy,          "" },
+                { "professionset",   SEC_CONSOLE,       true,   &HandleProfessionSet,          "" }
             };
             return PwcCommandTable;
         }
@@ -79,7 +78,7 @@ class cms_commandscript : public CommandScript
             }
 
             // stop flight if need
-            if (player->isInFlight())
+            if (player->IsInFlight())
             {
                 player->GetMotionMaster()->MovementExpired();
                 player->CleanupAfterTaxiFlight();
@@ -163,7 +162,7 @@ class cms_commandscript : public CommandScript
             //int32 skill = atoi(skillStr);
 
             Player* target;
-            ObjectGuid targetGuid;
+            uint64 targetGuid;
             if (!handler->extractPlayerTarget(playerName, &target, &targetGuid))
                 return false;
         
@@ -205,7 +204,7 @@ class cms_commandscript : public CommandScript
 
             // If our target does not yet have the skill they are trying to add to them, the chosen level also becomes
             // the max level of the new profession.
-            uint16 max = atoul(maxPureSkill);
+            uint16 max = atol(maxPureSkill);
 
 
             // If the player has the skill, we get the current skill step. If they don't have the skill, we
@@ -222,9 +221,9 @@ class announce_login : public PlayerScript
 public:
     announce_login() : PlayerScript("announce_login") { }
 
-    void OnLogin(Player* player, bool /*loginFirst*/)
+    void OnLogin(Player* player)
     {
-        if (player->GetTeam() == ALLIANCE)
+        if (player->GetTeamId() == ALLIANCE)
         {
             std::ostringstream ss;
             ss << "|cff3DAEFF[ PWC Login ]|cffFFD800 : Der Spieler |cff4CFF00 " << player->GetName() << " |cffFFD800ist online. Er spielt auf der Seite der |cff0026FF Allianz";
@@ -239,7 +238,7 @@ public:
     }
 };
 
-void AddSC_cms_commandscript()
+void AddSC_cmscommands()
 {
     new cms_commandscript();
     new announce_login();

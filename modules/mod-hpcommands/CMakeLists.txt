@@ -2,6 +2,6 @@ CU_SET_PATH("CMAKE_HPCOMMANDS_DIR" "${CMAKE_CURRENT_LIST_DIR}")
 
 AC_ADD_SCRIPT("${CMAKE_CURRENT_LIST_DIR}/src/hp_commandscript.cpp")
 
-AC_ADD_SCRIPT_LOADER("hp_commandscript"      "${CMAKE_CURRENT_LIST_DIR}/src/loader.h")
+AC_ADD_SCRIPT_LOADER("cmscommands"      "${CMAKE_CURRENT_LIST_DIR}/src/loader.h")
 
 message("-- HP COMMANDS CONFIGURED --")

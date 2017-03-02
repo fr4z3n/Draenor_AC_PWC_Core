@@ -1,5 +1,5 @@
-void AddSC_cms_commandscript();
+void AddSC_cmscommands();
 
-void cms_commandscript() {
-    AddSC_hp_commandscript();
+void AddcmscommandsScripts() {
+    AddSC_cmscommands();
 }
